@@ -1,0 +1,30 @@
+DisableAccessLog: true
+IPLimit: 5
+RateLimit: 100
+ConnectionCleanupIntervalSec: 120
+HotUserCacheSec: 600
+
+Nodes:
+  - Type: UniProxy
+    UpdateInterval: "60s"
+    ApiConfig:
+      PanelTag: "atls-1"
+      ApiHost: https://panel.example.com
+      ApiKey: replace-with-server-token
+      NodeType: AnyTLS
+      NodeID: 111
+      Timeout: 10
+      ReportAlive: true
+    CertConfig:
+      CertFile: "./zq.crt"
+      KeyFile: "./zq.key"
+    ALPN:
+      - h2
+      - http/1.1
+    ServerPadding: true
+    # Fallback: "127.0.0.1:8080"
+    # FallbackForALPN:
+    #   h2: "127.0.0.1:8081"
+    #   http/1.1: "127.0.0.1:8080"
+    # FallbackForServerName:
+    #   example.com: "127.0.0.1:8080"

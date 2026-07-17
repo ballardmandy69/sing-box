@@ -1,0 +1,79 @@
+name: AnyTLS panel release
+
+on:
+  push:
+    tags:
+      - "anytls-panel-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Linux ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch:
+          - amd64
+          - arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.4"
+          cache: true
+
+      - name: Test panel compatibility
+        run: go test ./experimental/panelcompat ./protocol/anytls ./option
+
+      - name: Build
+        env:
+          GOOS: linux
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: "0"
+        run: |
+          tags="$(cat release/DEFAULT_BUILD_TAGS_OTHERS)"
+          ldflags="$(cat release/LDFLAGS) -s -w"
+          go build -trimpath -tags "${tags}" -ldflags "${ldflags}" \
+            -o "shabi-linux-${GOARCH}" ./cmd/sing-box
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shabi-linux-${{ matrix.arch }}
+          path: shabi-linux-${{ matrix.arch }}
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: shabi-linux-*
+          merge-multiple: true
+          path: dist
+
+      - name: Prepare assets
+        run: |
+          install -m 755 release/panel/install.sh dist/install.sh
+          install -m 755 release/panel/sb-auto.sh dist/sb-auto.sh
+          install -m 644 release/panel/config.json dist/config.json
+          install -m 644 release/panel/server.example.yml dist/server.example.yml
+          cd dist
+          sha256sum shabi-linux-amd64 shabi-linux-arm64 > checksums.txt
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "${TAG}" dist/* \
+            --title "${TAG}" \
+            --notes "Pure AnyTLS panel-server build with UniProxy server.yml compatibility, sb@/sbc@ systemd units, traffic reporting, cached startup, and hardened HTTP/1.1/HTTP/2 fallback."

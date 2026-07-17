@@ -5,6 +5,10 @@ The universal proxy platform.
 > This fork adds AnyTLS-only server hardening, server-to-client padding, and
 > real HTTP/1.1 and HTTP/2 fallback routing. See the
 > [AnyTLS inbound documentation](docs/configuration/inbound/anytls.md).
+>
+> It also includes a panel-compatible `server` mode with `/opt/shabi`,
+> `sb@`/`sbc@`, and UniProxy `server.yml` compatibility. See the
+> [Chinese deployment guide](docs/panel-server.zh.md).
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/sing-box.svg)](https://repology.org/project/sing-box/versions)
 
