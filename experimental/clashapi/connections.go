@@ -87,6 +87,7 @@ func (c connectionObject) MarshalJSON() ([]byte, error) {
 		"metadata": map[string]any{
 			"network":         c.Metadata.Network,
 			"type":            inbound,
+			"inboundUser":     c.Metadata.User,
 			"sourceIP":        c.Metadata.Source.Addr,
 			"destinationIP":   c.Metadata.Destination.Addr,
 			"sourcePort":      F.ToString(c.Metadata.Source.Port),
