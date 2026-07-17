@@ -79,6 +79,8 @@ require (
 	howett.net/plist v1.0.1
 )
 
+replace github.com/anytls/sing-anytls => github.com/ballardmandy69/sing-anytls v0.0.12-hardening.2
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	filippo.io/hpke v0.4.0 // indirect
